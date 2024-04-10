@@ -1,0 +1,3 @@
+# Wydatki
+
+Initial README
