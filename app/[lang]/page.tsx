@@ -17,7 +17,7 @@ export default function Home({ params: { lang } }: Props) {
   const router = useRouter();
   const [expenses, setExpenses] = useState<Expense[] | []>([]);
   const [finished, setFinished] = useState(false);
-  const [newMode, setNewMode] = useState(true);
+  const [newMode, setNewMode] = useState(false);
   const [newExpense, setNewExpense] = useState<Expense>({id: "", name: "", date: Timestamp.fromDate(new Date()), amount: 0, attachment: ""});
   const t = (key: string) => getTranslation(lang, key);
   const [user, setUser] = useState<User>();
@@ -32,9 +32,16 @@ export default function Home({ params: { lang } }: Props) {
 			}
 		});
 	}, [router]);
+
   const createNewClicked = () => {
+    setNewMode(true);
+    setNewExpense({id: "", name: "", date: Timestamp.fromDate(new Date()), amount: 0, attachment: ""});
+  }
+
+  const submitClicked = () => {
     setNewMode(false);
     uploadNewExpense(newExpense, lang);
+    setExpenses([...expenses, newExpense]);
   }
 
   useEffect(() => {
@@ -44,6 +51,11 @@ export default function Home({ params: { lang } }: Props) {
 if (!finished) return  <div className="flex justify-center border-b border-neutral-800 bg-gradient-to-b from-zinc-600/30 pb-6 pt-8 backdrop-blur-2xl lg:static lg:w-auto lg:rounded-xl lg:p-4">...</div>
 return (
     <main className="flex flex-col items-center justify-center p-24 border-neutral-800 bg-zinc-800/30 from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:p-4">
+      <div style={{
+        display: newMode? "none":"block"
+      }}>
+        <button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => createNewClicked()}>{t("createExpense")}</button>
+      </div>
       <div className="mt-2 items-center justify-end" style={{
         display: newMode? "block":"none"
       }}>
@@ -66,9 +78,10 @@ return (
           value={newExpense?.amount}
           onChange={e => setNewExpense({...newExpense, amount: Number(e.target.value)})}
         /></div>
-        <div><button className="p-3 bg-blue-600 hover:bg-blue-800 text-white md:w-[200px] w-full rounded" onClick={() => createNewClicked()}>{t("addExpense")}</button></div>
+        <div><button className="mt-2 p-3 bg-green-600 hover:bg-green-800 text-white md:w-[200px] w-full rounded" onClick={() => submitClicked()}>{t("addExpense")}</button></div>
+        <div><button className="mt-2 p-3 bg-red-600 hover:bg-red-800 text-white md:w-[200px] w-full rounded" onClick={() => setNewMode(false)}>{t("cancel")}</button></div>
       </div>
-      <div className="max-w-5xl w-full from-black via-black items-center justify-center font-mono text-sm flex">
+      <div className="mt-2 max-w-5xl w-full from-black via-black items-center justify-center font-mono text-sm flex">
         <table className="text-white">
           <thead>
             <tr>
