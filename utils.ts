@@ -20,6 +20,7 @@ export interface Expense {
 	date: firebase.firestore.Timestamp;
 	amount: number;
 	attachment: string;
+	editMode?: boolean;
 }
 
 export const getExpenses = (setExpenses: any, setFinished: any) => {

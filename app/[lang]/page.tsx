@@ -89,15 +89,36 @@ return (
               <th>{t("date")}</th>
               <th>{t("amount")}</th>
               <th>{t("attachment")}</th>
+              <th>{t("edit")}</th>
             </tr>
           </thead>
           <tbody>
           {expenses?.map((expense: Expense, i) =>(
             <tr key={expense.id}>
-              <td className='md:text-md text-sm'>{expense.name}</td>
+              <td className='md:text-md text-sm'>
+                <input 
+                type="text"
+                className={inputClass}
+                value={expense.name}
+                disabled={!expense.editMode}
+                onChange={(e) => {
+                  setExpenses((prevExpenses: any) =>
+                    prevExpenses.map((prevExpense: Expense) =>
+                      prevExpense.id === expense.id ? { ...prevExpense, name: e.target.value } : prevExpense
+                    )
+                  );
+                }}/>
+                </td>
               <td className='md:text-md text-sm'>{expense.date.toDate().toLocaleDateString('en-CA')}</td>
               <td className='md:text-md text-sm'>{expense.amount}</td>
               <td className='md:text-md text-sm'>FileID:{expense.attachment}</td>
+              <td className='md:text-md text-sm'><button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => {
+                setExpenses((prevExpenses: any) =>
+                    prevExpenses.map((prevExpense: Expense) =>
+                      prevExpense.id === expense.id ? { ...prevExpense, editMode: !prevExpense.editMode } : prevExpense
+                    )
+                  );
+                }}>{t("edit")}</button></td>
             </tr>
           ))}
           </tbody>
