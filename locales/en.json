@@ -13,6 +13,10 @@
     "uploadFailCancel": "Upload canceled ❌",
     "uploadFail": "Failed to upload attachment due to unknown error ❌",
     "uploadSuccess": "Successfully uploaded attachment 🎉",
+    "confirmDelete":"Are you sure you want to delete this expense?",
+    "delete": "Delete",
+    "deleteSuccess": "Successfully deleted expese 🎉",
+    "deleteFail": "Failed to delete expense ❌",
     
 
 
@@ -33,19 +37,15 @@
     "frequency":"Frequency",
     "fixedD": "Fixed date",
     "fixedA": "Fixed amount",
-    "delete": "Delete",
     "cantMoveUp": "I can't move this entry up",
     "cantMoveDown": "I can't move this entry down",
     "bimonthly": "Every 2 months",
-    "confirmDelete": "Are you sure you want to delete this entry along with its history?",
 
     "active": "Active",
     "confirmDeleteMisc": "Are you sure you want to delete this entry?",
 
     "saveSuccess": "Changes saved successfully 🎉",
     "saveFail": "Failed to save changes ❌",
-    "deleteSuccess": "Successfully deleted entry 🎉",
-    "deleteFail": "Failed to delete entry ❌",
     "createSuccess": "Successfully created entry 🎉",
     "createFail": "Failed to create entry ❌",
     "paidSuccess": "Successfully changed payment status 🎉",

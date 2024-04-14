@@ -113,6 +113,21 @@ export const uploadFile = (file: File, id: string, lang: "en" | "pl") => {
 	);
 }
 
+export const deleteExpense = async (id: string, lang: "en" | "pl") => {
+	try {
+		const docRef = doc(db, "Expenses", id);
+		await deleteDoc(docRef).then(() => {
+			successMessage(t(lang, "deleteSuccess"));
+		}).catch((error) => {
+			console.error(error);
+			errorMessage(t(lang, "deleteFail"));
+		})
+	} catch (error) {
+		console.error(error);
+		errorMessage(t(lang, "deleteFail"));
+	}
+}
+
 
 /**
  * Displays a success message using the toast library.

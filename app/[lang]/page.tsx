@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import { User, Expense, getPermissions, getExpenses, uploadNewExpense, uploadFile } from '@/utils';
+import { User, Expense, getPermissions, getExpenses, uploadNewExpense, uploadFile, deleteExpense } from '@/utils';
 import { getTranslation } from '@/translations';
 import firebase from 'firebase/compat/app';
 import { Timestamp } from "firebase/firestore";
@@ -27,6 +27,7 @@ export default function Home({ params: { lang } }: Props) {
 		onAuthStateChanged(auth, async (user) => {
             if (user) {
                 setUser({ email: user.email, uid: user.uid });
+                setFinished(false);
                 const promises = [getPermissions(user.uid, setModifyPermission),getExpenses(setExpenses,setFinished)];
                 await Promise.all(promises);
 			} else {
@@ -44,7 +45,6 @@ export default function Home({ params: { lang } }: Props) {
   const submitClicked = () => {
     setNewMode(false);
     uploadNewExpense(newExpense, newFile, lang);
-    setExpenses([...expenses, newExpense]);
   }
 
   const prepareUploadFile = (file: File| undefined) => {
@@ -126,17 +126,39 @@ return (
                   );
                 }}/>
                 </td>
-              <td className='md:text-md text-sm'>{expense.date.toDate().toLocaleDateString('en-CA')}</td>
+              <td className='md:text-md text-sm'>
+                <input
+                type="date"
+                className="w-32 text-white bg-zinc-400/30"
+                value={expense.date.toDate().toLocaleDateString('en-CA')}
+                disabled={!expense.editMode}
+                onChange={(e) => {
+                  setExpenses((prevExpenses: any) =>
+                    prevExpenses.map((prevExpense: Expense) =>
+                      prevExpense.id === expense.id ? { ...prevExpense, date: Timestamp.fromDate(new Date(e.target.value)) } : prevExpense
+                    )
+                  );
+                }}
+                />
+              </td>
               <td className='md:text-md text-sm'>{expense.amount}</td>
               <td className='md:text-md text-sm'>FileID:{expense.attachment}</td>
               {modifyPermission &&
-              <td className='md:text-md text-sm'><button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => {
+              <td className='md:text-md text-sm'>
+                <button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => {
                 setExpenses((prevExpenses: any) =>
                     prevExpenses.map((prevExpense: Expense) =>
                       prevExpense.id === expense.id ? { ...prevExpense, editMode: !prevExpense.editMode } : prevExpense
                     )
                   );
-                }}>{t("edit")}</button></td>
+                }}>{t("edit")}</button>
+                <button className="p-3 bg-red-600 hover:bg-red-800 text-white" hidden={!expense.editMode} onClick={() => {
+                  const isConfirmed = confirm(t("confirmDelete"))
+                  if (isConfirmed && expense.id) {
+                    deleteExpense(expense.id, lang);
+                  }
+                }}>{t("delete")}</button>
+              </td>
               }
             </tr>
           ))}
