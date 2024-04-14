@@ -23,6 +23,21 @@ export interface Expense {
 	editMode?: boolean; // used only on client side to handle editing
 }
 
+export const getPermissions = (id: string, setModifyPermission: any) => {
+	try {
+		const unsub = onSnapshot(collection(db, "Permissions"), doc => {
+            doc.forEach((d: any) => {
+				if (d.data().id === id) {
+					setModifyPermission(true);
+				}
+			});
+		});
+	} catch (error) {
+		console.error(error);
+		setModifyPermission(false);
+	}
+}
+
 export const getExpenses = (setExpenses: any, setFinished: any) => {
 	try {
 		const docs: Expense[] = []
@@ -33,7 +48,6 @@ export const getExpenses = (setExpenses: any, setFinished: any) => {
 			docs.sort((a:Expense, b:Expense) => a.date.toMillis() - b.date.toMillis());
 			setExpenses(docs);
 			setFinished(true);
-			console.log(docs);
         });
 	} catch (error) {
 		console.error(error);

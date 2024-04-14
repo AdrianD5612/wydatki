@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import { User, Expense, getExpenses, uploadNewExpense, uploadFile } from '@/utils';
+import { User, Expense, getPermissions, getExpenses, uploadNewExpense, uploadFile } from '@/utils';
 import { getTranslation } from '@/translations';
 import firebase from 'firebase/compat/app';
 import { Timestamp } from "firebase/firestore";
@@ -17,6 +17,7 @@ export default function Home({ params: { lang } }: Props) {
   const router = useRouter();
   const [expenses, setExpenses] = useState<Expense[] | []>([]);
   const [finished, setFinished] = useState(false);
+  const [modifyPermission, setModifyPermission] = useState(false);
   const [newMode, setNewMode] = useState(false);
   const [newExpense, setNewExpense] = useState<Expense>({name: "", date: Timestamp.fromDate(new Date()), amount: 0, attachment: ""});
   const [newFile, setNewFile] = useState<File>();
@@ -26,7 +27,7 @@ export default function Home({ params: { lang } }: Props) {
 		onAuthStateChanged(auth, async (user) => {
             if (user) {
                 setUser({ email: user.email, uid: user.uid });
-                const promises = [getExpenses(setExpenses,setFinished)];
+                const promises = [getPermissions(user.uid, setModifyPermission),getExpenses(setExpenses,setFinished)];
                 await Promise.all(promises);
 			} else {
 				return router.push("/"+lang+"/login");
@@ -60,12 +61,12 @@ if (!finished) return  <div className="flex justify-center border-b border-neutr
 return (
     <main className="flex flex-col items-center justify-center p-24 border-neutral-800 bg-zinc-800/30 from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:p-4">
       <div style={{
-        display: newMode? "none":"block"
+        display: modifyPermission? (newMode? "none":"block") : "none"
       }}>
         <button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => createNewClicked()}>{t("createExpense")}</button>
       </div>
       <div className="mt-2 items-center justify-end" style={{
-        display: newMode? "block":"none"
+        display: modifyPermission? (newMode? "block":"none") : "none"
       }}>
         <div><input 
           type="text"
@@ -103,7 +104,9 @@ return (
               <th>{t("date")}</th>
               <th>{t("amount")}</th>
               <th>{t("attachment")}</th>
+              {modifyPermission &&
               <th>{t("edit")}</th>
+              }
             </tr>
           </thead>
           <tbody>
@@ -126,6 +129,7 @@ return (
               <td className='md:text-md text-sm'>{expense.date.toDate().toLocaleDateString('en-CA')}</td>
               <td className='md:text-md text-sm'>{expense.amount}</td>
               <td className='md:text-md text-sm'>FileID:{expense.attachment}</td>
+              {modifyPermission &&
               <td className='md:text-md text-sm'><button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => {
                 setExpenses((prevExpenses: any) =>
                     prevExpenses.map((prevExpense: Expense) =>
@@ -133,6 +137,7 @@ return (
                     )
                   );
                 }}>{t("edit")}</button></td>
+              }
             </tr>
           ))}
           </tbody>
