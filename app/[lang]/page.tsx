@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import { User, Expense, getExpenses, uploadNewExpense } from '@/utils';
+import { User, Expense, getExpenses, uploadNewExpense, uploadFile } from '@/utils';
 import { getTranslation } from '@/translations';
 import firebase from 'firebase/compat/app';
 import { Timestamp } from "firebase/firestore";
@@ -18,7 +18,8 @@ export default function Home({ params: { lang } }: Props) {
   const [expenses, setExpenses] = useState<Expense[] | []>([]);
   const [finished, setFinished] = useState(false);
   const [newMode, setNewMode] = useState(false);
-  const [newExpense, setNewExpense] = useState<Expense>({id: "", name: "", date: Timestamp.fromDate(new Date()), amount: 0, attachment: ""});
+  const [newExpense, setNewExpense] = useState<Expense>({name: "", date: Timestamp.fromDate(new Date()), amount: 0, attachment: ""});
+  const [newFile, setNewFile] = useState<File>();
   const t = (key: string) => getTranslation(lang, key);
   const [user, setUser] = useState<User>();
   const isUserLoggedIn = useCallback(() => {
@@ -35,13 +36,20 @@ export default function Home({ params: { lang } }: Props) {
 
   const createNewClicked = () => {
     setNewMode(true);
-    setNewExpense({id: "", name: "", date: Timestamp.fromDate(new Date()), amount: 0, attachment: ""});
+    setNewExpense({name: "", date: Timestamp.fromDate(new Date()), amount: 0, attachment: ""});
+    setNewFile(undefined);
   }
 
   const submitClicked = () => {
     setNewMode(false);
-    uploadNewExpense(newExpense, lang);
+    uploadNewExpense(newExpense, newFile, lang);
     setExpenses([...expenses, newExpense]);
+  }
+
+  const prepareUploadFile = (file: File| undefined) => {
+    if (file != undefined) {
+      setNewFile(file);
+    }
   }
 
   useEffect(() => {
@@ -78,6 +86,12 @@ return (
           value={newExpense?.amount}
           onChange={e => setNewExpense({...newExpense, amount: Number(e.target.value)})}
         /></div>
+        <div><input
+          type="file"
+          name="file"
+          className="block w-full mb-5 text-xs border rounded-lg cursor-pointer text-gray-400 focus:outline-none bg-gray-700 border-gray-600 placeholder-gray-400"
+          onChange={e => prepareUploadFile(e.target.files?.[0])}
+          /></div>
         <div><button className="mt-2 p-3 bg-green-600 hover:bg-green-800 text-white md:w-[200px] w-full rounded" onClick={() => submitClicked()}>{t("addExpense")}</button></div>
         <div><button className="mt-2 p-3 bg-red-600 hover:bg-red-800 text-white md:w-[200px] w-full rounded" onClick={() => setNewMode(false)}>{t("cancel")}</button></div>
       </div>

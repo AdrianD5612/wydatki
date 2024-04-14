@@ -19,8 +19,8 @@ export interface Expense {
 	name: string;
 	date: firebase.firestore.Timestamp;
 	amount: number;
-	attachment: string;
-	editMode?: boolean;
+	attachment?: string;
+	editMode?: boolean; // used only on client side to handle editing
 }
 
 export const getExpenses = (setExpenses: any, setFinished: any) => {
@@ -28,9 +28,9 @@ export const getExpenses = (setExpenses: any, setFinished: any) => {
 		const docs: Expense[] = []
 		const unsub = onSnapshot(collection(db, "Expenses"), doc => {
             doc.forEach((d: any) => {
-				//todo sort by date
-				docs.push( { ...d.data(), id: d.id });
+				docs.push( { ...d.data(), id: d.id });	
 			});
+			docs.sort((a:Expense, b:Expense) => a.date.toMillis() - b.date.toMillis());
 			setExpenses(docs);
 			setFinished(true);
 			console.log(docs);
@@ -41,14 +41,62 @@ export const getExpenses = (setExpenses: any, setFinished: any) => {
 	}
 }
 
-export const uploadNewExpense = (newExpense: Expense, lang: "en" | "pl") => {
+export const uploadNewExpense = async (newExpense: Expense, file: File | undefined, lang: "en" | "pl") => {
 	try {
-		addDoc(collection(db, "Expenses"), newExpense);
-		successMessage(t(lang, "addSuccess"));
+		const docRef = await addDoc(collection(db, "Expenses"), newExpense).then((docRef) => {
+			successMessage(t(lang, "addSuccess"));
+			if (file != undefined) {
+				uploadFile(file, docRef.id, lang);
+			}
+		}).catch((error) => {
+			console.error(error);
+			errorMessage(t(lang, "addFail"));
+		})
 	} catch (error) {
 		console.error(error);
 		errorMessage(t(lang, "addFail"));
 	}
+}
+
+export const uploadFile = (file: File, id: string, lang: "en" | "pl") => {
+	const storage = getStorage();
+	const storageRef = ref(storage, 'Attachments/'+id+'.'+file.name.split('.').pop());
+	const uploadTask = uploadBytesResumable(storageRef, file);
+	uploadTask.on('state_changed',
+		(snapshot) => {
+		}, 
+		(error) => {
+			// A full list of error codes is available at
+			// https://firebase.google.com/docs/storage/web/handle-errors
+			switch (error.code) {
+			case 'storage/unauthorized':
+				errorMessage(t(lang, "uploadFailSize"));
+				break;
+			case 'storage/canceled':
+				errorMessage(t(lang, "uploadFailCancel"));
+				break;
+			case 'storage/unknown':
+				errorMessage(t(lang, "uploadFail"));
+				break;
+			}
+		}, 
+		async () => {
+			// success
+			const billRef = doc(db, "Expenses", id);
+			const docSnap = await getDoc(billRef);
+			if (docSnap.exists()) {
+				await updateDoc(billRef, {
+					attachment: id+'.'+file.name.split('.').pop()
+					});
+				successMessage(t(lang, "uploadSuccess"));
+			} else {
+				await setDoc(billRef, {
+					attachment: id+'.'+file.name.split('.').pop()
+					});
+				successMessage(t(lang, "uploadSuccess"));
+			}
+			}
+	);
 }
 
 
