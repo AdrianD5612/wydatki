@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import { User, Expense, getPermissions, getExpenses, uploadNewExpense, uploadFile, deleteExpense } from '@/utils';
+import { User, Expense, getPermissions, getExpenses, uploadNewExpense, uploadFile, deleteExpense, updateExpense } from '@/utils';
 import { getTranslation } from '@/translations';
 import firebase from 'firebase/compat/app';
 import { Timestamp } from "firebase/firestore";
@@ -141,10 +141,24 @@ return (
                 }}
                 />
               </td>
-              <td className='md:text-md text-sm'>{expense.amount}</td>
+              <td className='md:text-md text-sm'>
+                <input
+                type="number"
+                className={inputClass}
+                value={expense.amount}
+                disabled={!expense.editMode}
+                onChange={(e) => {
+                  setExpenses((prevExpenses: any) =>
+                    prevExpenses.map((prevExpense: Expense) =>
+                      prevExpense.id === expense.id ? { ...prevExpense, amount: Number(e.target.value) } : prevExpense
+                    )
+                  );
+                }}
+                />
+              </td>
               <td className='md:text-md text-sm'>FileID:{expense.attachment}</td>
               {modifyPermission &&
-              <td className='md:text-md text-sm'>
+              <td className='md:text-md text-sm flex space-x-2'>
                 <button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => {
                 setExpenses((prevExpenses: any) =>
                     prevExpenses.map((prevExpense: Expense) =>
@@ -152,6 +166,7 @@ return (
                     )
                   );
                 }}>{t("edit")}</button>
+                <button className="p-3 bg-green-600 hover:bg-green-800 text-white" hidden={!expense.editMode} onClick={() => updateExpense(expense, lang)}>{t("save")}</button>
                 <button className="p-3 bg-red-600 hover:bg-red-800 text-white" hidden={!expense.editMode} onClick={() => {
                   const isConfirmed = confirm(t("confirmDelete"))
                   if (isConfirmed && expense.id) {

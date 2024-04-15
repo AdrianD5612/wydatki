@@ -113,6 +113,24 @@ export const uploadFile = (file: File, id: string, lang: "en" | "pl") => {
 	);
 }
 
+export const updateExpense = async (newExpense: any, lang: "en" | "pl") => {
+	try {
+		if (newExpense.id) {
+			delete newExpense.editMode;	//client side only property
+			const docRef = doc(db, "Expenses", newExpense.id);
+			await updateDoc(docRef, newExpense).then(() => {
+				successMessage(t(lang, "updateSuccess"));
+			}).catch((error) => {
+				console.error(error);
+				errorMessage(t(lang, "updateFail"));
+			})
+		}
+	} catch (error) {
+		console.error(error);
+		errorMessage(t(lang, "updateFail"));
+	}
+}
+
 export const deleteExpense = async (id: string, lang: "en" | "pl") => {
 	try {
 		const docRef = doc(db, "Expenses", id);

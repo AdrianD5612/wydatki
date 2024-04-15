@@ -17,6 +17,9 @@
     "delete": "Delete",
     "deleteSuccess": "Successfully deleted expese 🎉",
     "deleteFail": "Failed to delete expense ❌",
+    "updateSuccess": "Successfully updated expense 🎉",
+    "updateFail": "Failed to update expense ❌",
+    "save": "Save",
     
 
 
