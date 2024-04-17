@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import { User, Expense, getPermissions, getExpenses, uploadNewExpense, uploadFile, deleteExpense, updateExpense } from '@/utils';
+import { User, Expense, getPermissions, getExpenses, uploadNewExpense, uploadFile, deleteExpense, updateExpense, generateUrlFromStorage } from '@/utils';
 import { getTranslation } from '@/translations';
 import firebase from 'firebase/compat/app';
 import { Timestamp } from "firebase/firestore";
@@ -21,6 +21,8 @@ export default function Home({ params: { lang } }: Props) {
   const [newMode, setNewMode] = useState(false);
   const [newExpense, setNewExpense] = useState<Expense>({name: "", date: Timestamp.fromDate(new Date()), amount: 0, attachment: ""});
   const [newFile, setNewFile] = useState<File>();
+  const [viewUrl, setViewUrl] = useState<string>();
+  const [showImg, setShowImg] = useState(false);
   const t = (key: string) => getTranslation(lang, key);
   const [user, setUser] = useState<User>();
   const isUserLoggedIn = useCallback(() => {
@@ -53,6 +55,14 @@ export default function Home({ params: { lang } }: Props) {
     }
   }
 
+const viewClicked = (id: string) => {
+  if (id) {
+    generateUrlFromStorage(id, setViewUrl, lang);
+    setShowImg(true);
+  }
+}
+  
+
   useEffect(() => {
     isUserLoggedIn()
 }, [isUserLoggedIn]);
@@ -60,6 +70,11 @@ export default function Home({ params: { lang } }: Props) {
 if (!finished) return  <div className="flex justify-center border-b border-neutral-800 bg-gradient-to-b from-zinc-600/30 pb-6 pt-8 backdrop-blur-2xl lg:static lg:w-auto lg:rounded-xl lg:p-4">...</div>
 return (
     <main className="flex flex-col items-center justify-center p-24 border-neutral-800 bg-zinc-800/30 from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:p-4">
+      {showImg &&
+      <div>
+        <img className='w-full h-full' src={viewUrl} alt={t("attachment")} onClick={() => setShowImg(false)} />
+        </div>
+      }
       <div style={{
         display: modifyPermission? (newMode? "none":"block") : "none"
       }}>
@@ -156,7 +171,11 @@ return (
                 }}
                 />
               </td>
-              <td className='md:text-md text-sm'>FileID:{expense.attachment}</td>
+              <td>
+                {expense.attachment &&
+                <button className="p-3 w-full bg-blue-600 hover:bg-blue-800 text-white" onClick={() => viewClicked(expense.attachment as string)}>{t("view")}</button>
+                }
+              </td>
               {modifyPermission &&
               <td className='md:text-md text-sm flex space-x-2'>
                 <button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => {

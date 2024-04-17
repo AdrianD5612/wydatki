@@ -20,6 +20,8 @@
     "updateSuccess": "Successfully updated expense 🎉",
     "updateFail": "Failed to update expense ❌",
     "save": "Save",
+    "view": "View",
+    "downloadFail": "Failed to download attachment ❌",
     
 
 

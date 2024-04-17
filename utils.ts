@@ -146,6 +146,21 @@ export const deleteExpense = async (id: string, lang: "en" | "pl") => {
 	}
 }
 
+export const generateUrlFromStorage = async (id: string, setViewUrl: any,lang: "en" | "pl") => {
+	try {
+		const storage = getStorage();
+		const storageRef = ref(storage, 'Attachments/'+id);
+		const url = await getDownloadURL(storageRef).then((url) => {
+			setViewUrl(url);
+		}).catch((error) => {
+			console.error(error);
+			errorMessage(t(lang, "downloadFail"));
+		})
+	} catch (error) {
+		console.error(error);
+		errorMessage(t(lang, "downloadFail"));
+	}
+}
 
 /**
  * Displays a success message using the toast library.
