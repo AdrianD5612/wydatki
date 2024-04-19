@@ -162,6 +162,25 @@ export const generateUrlFromStorage = async (id: string, setViewUrl: any,lang: "
 	}
 }
 
+export const deleteAttachment = async (id: string, attachmentFileName: string, lang: "en" | "pl") => {
+	try {
+		const storage = getStorage();
+		const storageRef = ref(storage, 'Attachments/'+attachmentFileName);
+		await deleteObject(storageRef).then(async () => {
+			await updateDoc(doc(db, "Expenses", id), {
+				attachment: ''
+				});
+			successMessage(t(lang, "deleteFileSuccess"));
+		}).catch((error) => {
+			console.error(error);
+			errorMessage(t(lang, "deleteFileFail"));
+		})
+	} catch (error) {
+		console.error(error);
+		errorMessage(t(lang, "deleteFileFail"));
+	}
+}
+
 /**
  * Displays a success message using the toast library.
  *

@@ -15,15 +15,16 @@
     "uploadSuccess": "Successfully uploaded attachment 🎉",
     "confirmDelete":"Are you sure you want to delete this expense?",
     "delete": "Delete",
-    "deleteSuccess": "Successfully deleted expese 🎉",
+    "deleteSuccess": "Successfully deleted expense 🎉",
     "deleteFail": "Failed to delete expense ❌",
     "updateSuccess": "Successfully updated expense 🎉",
     "updateFail": "Failed to update expense ❌",
     "save": "Save",
     "view": "View",
     "downloadFail": "Failed to download attachment ❌",
-    
-
+    "deleteAttachment": "Delete attachment",
+    "deleteFileSuccess": "Successfully deleted attachment 🎉",
+    "deleteFileFail": "Failed to delete attachment ❌",
 
     "saveChanges": "Save changes",
     "saveNote": "Save note",
@@ -57,8 +58,6 @@
     "paidFail": "Failed to change payment status ❌",
     "noteSuccess": "Successfully saved note 🎉",
     "noteFail": "Failed to save note ❌",
-    "deleteFileSuccess": "Invoice deleted 🎉",
-    "deleteFileFail": "Failed to delete invoice ❌",
     "loginSuccess": "Logged in 🎉",
     "loginFail": "Failed to log in ❌",
     "logoutSuccess": "Logged out 🎉",

@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import { User, Expense, getPermissions, getExpenses, uploadNewExpense, uploadFile, deleteExpense, updateExpense, generateUrlFromStorage } from '@/utils';
+import { User, Expense, getPermissions, getExpenses, uploadNewExpense, uploadFile, deleteExpense, updateExpense, generateUrlFromStorage, deleteAttachment } from '@/utils';
 import { getTranslation } from '@/translations';
 import firebase from 'firebase/compat/app';
 import { Timestamp } from "firebase/firestore";
@@ -172,8 +172,17 @@ return (
                 />
               </td>
               <td>
-                {expense.attachment &&
-                <button className="p-3 w-full bg-blue-600 hover:bg-blue-800 text-white" onClick={() => viewClicked(expense.attachment as string)}>{t("view")}</button>
+                {expense.attachment? (
+                  <><button className="p-3 w-full bg-blue-600 hover:bg-blue-800 text-white" hidden={expense.editMode} onClick={() => viewClicked(expense.attachment as string)}>{t("view")}</button>
+                    <button className="p-3 bg-red-600 hover:bg-red-800 text-white" hidden={!expense.editMode} onClick={() => deleteAttachment(expense.id as string, expense.attachment as string, lang)}>{t("deleteAttachment")}</button></>
+                  ) : (
+                  <input
+                  type={expense.editMode? "file": "hidden" }
+                  name="file"
+                  className="block w-full mb-5 text-xs border rounded-lg cursor-pointer text-gray-400 focus:outline-none bg-gray-700 border-gray-600 placeholder-gray-400"
+                  onChange={e => { if (e.target.files?.[0]) uploadFile(e.target.files?.[0], expense.id as string, lang)}}
+                  />
+                  )
                 }
               </td>
               {modifyPermission &&
