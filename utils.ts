@@ -53,6 +53,7 @@ export const getExpenses = (setExpenses: any, setFinished: any) => {
 				balance += expense.amount;
 				docs[index].balance = balance;
 			});
+			docs.reverse();
 			setExpenses(docs);
 			setFinished(true);
         });
