@@ -118,6 +118,7 @@ return (
               <th>{t("name")}</th>
               <th>{t("date")}</th>
               <th>{t("amount")}</th>
+              <th>{t("balance")}</th>
               <th>{t("attachment")}</th>
               {modifyPermission &&
               <th>{t("edit")}</th>
@@ -171,6 +172,7 @@ return (
                 }}
                 />
               </td>
+              <td className='md:text-md text-sm'>{expense.editMode? '' : expense.balance}</td>
               <td>
                 {expense.attachment? (
                   <><button className="p-3 w-full bg-blue-600 hover:bg-blue-800 text-white" hidden={expense.editMode} onClick={() => viewClicked(expense.attachment as string)}>{t("view")}</button>

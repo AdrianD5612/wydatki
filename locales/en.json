@@ -25,6 +25,7 @@
     "deleteAttachment": "Delete attachment",
     "deleteFileSuccess": "Successfully deleted attachment 🎉",
     "deleteFileFail": "Failed to delete attachment ❌",
+    "balance": "Balance",
 
     "saveChanges": "Save changes",
     "saveNote": "Save note",

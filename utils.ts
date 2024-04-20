@@ -21,6 +21,7 @@ export interface Expense {
 	amount: number;
 	attachment?: string;
 	editMode?: boolean; // used only on client side to handle editing
+	balance?: number; // used only on client side to handle balance calculating
 }
 
 export const getPermissions = (id: string, setModifyPermission: any) => {
@@ -46,6 +47,12 @@ export const getExpenses = (setExpenses: any, setFinished: any) => {
 				docs.push( { ...d.data(), id: d.id });	
 			});
 			docs.sort((a:Expense, b:Expense) => a.date.toMillis() - b.date.toMillis());
+			//calculating client side property: balance
+			let balance = 0;
+			docs.forEach((expense, index) => {
+				balance += expense.amount;
+				docs[index].balance = balance;
+			});
 			setExpenses(docs);
 			setFinished(true);
         });
@@ -117,6 +124,7 @@ export const updateExpense = async (newExpense: any, lang: "en" | "pl") => {
 	try {
 		if (newExpense.id) {
 			delete newExpense.editMode;	//client side only property
+			delete newExpense.balance;	//client side only property
 			const docRef = doc(db, "Expenses", newExpense.id);
 			await updateDoc(docRef, newExpense).then(() => {
 				successMessage(t(lang, "updateSuccess"));
