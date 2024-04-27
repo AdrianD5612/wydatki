@@ -26,6 +26,10 @@
     "deleteFileSuccess": "Successfully deleted attachment 🎉",
     "deleteFileFail": "Failed to delete attachment ❌",
     "balance": "Balance",
+    "import": "Import file",
+    "importFail": "Failed to import from file ❌",
+
+
 
     "saveChanges": "Save changes",
     "saveNote": "Save note",

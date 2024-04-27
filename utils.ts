@@ -41,8 +41,8 @@ export const getPermissions = (id: string, setModifyPermission: any) => {
 
 export const getExpenses = (setExpenses: any, setFinished: any) => {
 	try {
-		const docs: Expense[] = []
 		const unsub = onSnapshot(collection(db, "Expenses"), doc => {
+			const docs: Expense[] = []
             doc.forEach((d: any) => {
 				docs.push( { ...d.data(), id: d.id });	
 			});
@@ -189,6 +189,41 @@ export const deleteAttachment = async (id: string, attachmentFileName: string, l
 		errorMessage(t(lang, "deleteFileFail"));
 	}
 }
+
+export const importFromFile = (file: File | undefined, setImportMode: any, lang: "en" | "pl") => {
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = async (event) => {
+        const content = event.target?.result as string;
+        try {
+          const parsedObjects = JSON.parse(content) as Expense[];
+          for (const obj of parsedObjects) {
+			obj.date = Timestamp.fromDate(new Date(Date.parse(obj.date.toString())));	//converting string date to firebase timestamp
+			if (typeof obj.amount !== 'number' || Number.isNaN(obj.amount)) {
+				try {
+					obj.amount = parseFloat(obj.amount.toString().replace(/,/g, '.'));	//handle comma as decimal separator
+				} catch (error) {
+					console.error(error);
+					errorMessage(t(lang, "importFail"));
+					return;
+				}
+			}
+			console.log(obj);
+            await uploadNewExpense(obj, undefined, lang);
+          }
+        } catch (error) {
+          console.error(error);
+          errorMessage(t(lang, "importFail"));
+        }
+      };
+      reader.readAsText(file);
+      setImportMode(false);
+    }
+	else {
+		errorMessage(t(lang, "importFail"));
+	}
+  }
 
 /**
  * Displays a success message using the toast library.

@@ -3,9 +3,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import { User, Expense, getPermissions, getExpenses, uploadNewExpense, uploadFile, deleteExpense, updateExpense, generateUrlFromStorage, deleteAttachment } from '@/utils';
+import { User, Expense, getPermissions, getExpenses, uploadNewExpense, uploadFile, deleteExpense, updateExpense, generateUrlFromStorage, deleteAttachment, importFromFile } from '@/utils';
 import { getTranslation } from '@/translations';
-import firebase from 'firebase/compat/app';
 import { Timestamp } from "firebase/firestore";
 
 export type Props = {
@@ -21,6 +20,7 @@ export default function Home({ params: { lang } }: Props) {
   const [newMode, setNewMode] = useState(false);
   const [newExpense, setNewExpense] = useState<Expense>({name: "", date: Timestamp.fromDate(new Date()), amount: 0, attachment: ""});
   const [newFile, setNewFile] = useState<File>();
+  const [importMode, setImportMode] = useState(false);
   const [viewUrl, setViewUrl] = useState<string>();
   const [showImg, setShowImg] = useState(false);
   const t = (key: string) => getTranslation(lang, key);
@@ -29,9 +29,7 @@ export default function Home({ params: { lang } }: Props) {
 		onAuthStateChanged(auth, async (user) => {
             if (user) {
                 setUser({ email: user.email, uid: user.uid });
-                setFinished(false);
-                const promises = [getPermissions(user.uid, setModifyPermission),getExpenses(setExpenses,setFinished)];
-                await Promise.all(promises);
+                getPermissions(user.uid, setModifyPermission);
 			} else {
 				return router.push("/"+lang+"/login");
 			}
@@ -55,17 +53,25 @@ export default function Home({ params: { lang } }: Props) {
     }
   }
 
-const viewClicked = (id: string) => {
-  if (id) {
-    generateUrlFromStorage(id, setViewUrl, lang);
-    setShowImg(true);
+  const viewClicked = (id: string) => {
+    if (id) {
+      generateUrlFromStorage(id, setViewUrl, lang);
+      setShowImg(true);
+    }
   }
-}
   
 
   useEffect(() => {
     isUserLoggedIn()
-}, [isUserLoggedIn]);
+  }, [isUserLoggedIn]);
+
+  useEffect(() => {
+    let ignore = false;
+    if (!ignore)  {
+      getExpenses(setExpenses,setFinished)
+    }
+    return () => { ignore = true; }
+  },[]);
 
 if (!finished) return  <div className="flex justify-center border-b border-neutral-800 bg-gradient-to-b from-zinc-600/30 pb-6 pt-8 backdrop-blur-2xl lg:static lg:w-auto lg:rounded-xl lg:p-4">...</div>
 return (
@@ -79,20 +85,21 @@ return (
         display: modifyPermission? (newMode? "none":"block") : "none"
       }}>
         <button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => createNewClicked()}>{t("createExpense")}</button>
+        <button className="p-3 bg-yellow-600 hover:bg-yellow-800 text-white" hidden={importMode} onClick={() => setImportMode(true)}>{t("import")}</button>
       </div>
       <div className="mt-2 items-center justify-end" style={{
         display: modifyPermission? (newMode? "block":"none") : "none"
       }}>
         <div><input 
           type="text"
-          className={inputClass}
+          className="w-16 md:w-32 lg:w-32 text-white bg-zinc-400/30"
           placeholder={t("name")}
           value={newExpense?.name}
           onChange={e => setNewExpense({...newExpense, name: e.target.value})}
         /></div>
         <div><input
           type="date"
-          className="w-32 text-white bg-zinc-400/30"
+          className="w-16 md:w-32 lg:w-32 text-white bg-zinc-400/30"
           value={newExpense?.date?.toDate().toLocaleDateString('en-CA')}
           onChange={e => setNewExpense({...newExpense, date: Timestamp.fromDate(new Date(e.target.value))})}
         /></div>
@@ -110,6 +117,16 @@ return (
           /></div>
         <div><button className="mt-2 p-3 bg-green-600 hover:bg-green-800 text-white md:w-[200px] w-full rounded" onClick={() => submitClicked()}>{t("addExpense")}</button></div>
         <div><button className="mt-2 p-3 bg-red-600 hover:bg-red-800 text-white md:w-[200px] w-full rounded" onClick={() => setNewMode(false)}>{t("cancel")}</button></div>
+      </div>
+      <div className="mt-2 items-center justify-end" style={{
+        display: importMode? "block" : "none"
+      }}>
+        <input
+          type="file"
+          name="file"
+          className="block w-full mb-5 text-xs border rounded-lg cursor-pointer text-gray-400 focus:outline-none bg-gray-700 border-gray-600 placeholder-gray-400"
+          onChange={e => importFromFile(e.target.files?.[0], setImportMode, lang)}
+          />
       </div>
       <div className="mt-2 max-w-5xl w-full from-black via-black items-center justify-center font-mono text-sm flex">
         <table className="text-white">
@@ -131,7 +148,7 @@ return (
               <td className='md:text-md text-sm'>
                 <input 
                 type="text"
-                className={inputClass}
+                className="w-16 md:w-32 lg:w-32 text-white bg-zinc-400/30"
                 value={expense.name}
                 disabled={!expense.editMode}
                 onChange={(e) => {
@@ -145,7 +162,7 @@ return (
               <td className='md:text-md text-sm'>
                 <input
                 type="date"
-                className="w-32 text-white bg-zinc-400/30"
+                className="w-28 text-white bg-zinc-400/30"
                 value={expense.date.toDate().toLocaleDateString('en-CA')}
                 disabled={!expense.editMode}
                 onChange={(e) => {
