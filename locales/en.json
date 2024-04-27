@@ -31,37 +31,10 @@
     "logOut": "Log out",
 
 
-    "saveChanges": "Save changes",
-    "saveNote": "Save note",
-    "monthIsPaid": "Selected month has already been marked as paid 🎉",
-    "monthIsNotPaid": "Selected month has not been marked as paid yet ❌",
-    "change": "Change",
-
     "login": "Log in",
     "email": "Email",
     "password": "Password",
     "submitLogin": "LOG IN",
-
-    "mainPage": "Main page",
-    "switchLang": "Switch language",
-    "frequency":"Frequency",
-    "fixedD": "Fixed date",
-    "fixedA": "Fixed amount",
-    "cantMoveUp": "I can't move this entry up",
-    "cantMoveDown": "I can't move this entry down",
-    "bimonthly": "Every 2 months",
-
-    "active": "Active",
-    "confirmDeleteMisc": "Are you sure you want to delete this entry?",
-
-    "saveSuccess": "Changes saved successfully 🎉",
-    "saveFail": "Failed to save changes ❌",
-    "createSuccess": "Successfully created entry 🎉",
-    "createFail": "Failed to create entry ❌",
-    "paidSuccess": "Successfully changed payment status 🎉",
-    "paidFail": "Failed to change payment status ❌",
-    "noteSuccess": "Successfully saved note 🎉",
-    "noteFail": "Failed to save note ❌",
     "loginSuccess": "Logged in 🎉",
     "loginFail": "Failed to log in ❌",
     "logoutSuccess": "Logged out 🎉",
