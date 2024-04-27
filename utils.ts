@@ -66,17 +66,17 @@ export const getExpenses = (setExpenses: any, setFinished: any) => {
 export const uploadNewExpense = async (newExpense: Expense, file: File | undefined, lang: "en" | "pl") => {
 	try {
 		const docRef = await addDoc(collection(db, "Expenses"), newExpense).then((docRef) => {
-			successMessage(t(lang, "addSuccess"));
+			successMessage(newExpense.name+t(lang, "addSuccess"));
 			if (file != undefined) {
 				uploadFile(file, docRef.id, lang);
 			}
 		}).catch((error) => {
 			console.error(error);
-			errorMessage(t(lang, "addFail"));
+			errorMessage(newExpense.name+t(lang, "addFail"));
 		})
 	} catch (error) {
 		console.error(error);
-		errorMessage(t(lang, "addFail"));
+		errorMessage(newExpense.name+t(lang,"addFail"));
 	}
 }
 
@@ -155,7 +155,7 @@ export const deleteExpense = async (id: string, lang: "en" | "pl") => {
 	}
 }
 
-export const generateUrlFromStorage = async (id: string, setViewUrl: any,lang: "en" | "pl") => {
+export const generateUrlFromStorage = async (id: string, setViewUrl: any, lang: "en" | "pl") => {
 	try {
 		const storage = getStorage();
 		const storageRef = ref(storage, 'Attachments/'+id);
