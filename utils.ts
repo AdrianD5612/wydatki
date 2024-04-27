@@ -51,9 +51,9 @@ export const getExpenses = (setExpenses: any, setFinished: any) => {
 			let balance = 0;
 			docs.forEach((expense, index) => {
 				balance += expense.amount;
-				docs[index].balance = balance;
+				docs[index].balance = Math.round((balance + Number.EPSILON) * 100) / 100;	//rounding to 2 decimal places
 			});
-			docs.reverse();
+			docs.reverse();	//showing most recent expenses first
 			setExpenses(docs);
 			setFinished(true);
         });
