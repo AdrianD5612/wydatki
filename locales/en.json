@@ -28,7 +28,7 @@
     "balance": "Balance",
     "import": "Import file",
     "importFail": "Failed to import from file ❌",
-
+    "logOut": "Log out",
 
 
     "saveChanges": "Save changes",
@@ -44,7 +44,6 @@
 
     "mainPage": "Main page",
     "switchLang": "Switch language",
-    "logOut": "Log out",
     "frequency":"Frequency",
     "fixedD": "Fixed date",
     "fixedA": "Fixed amount",

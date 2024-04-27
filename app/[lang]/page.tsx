@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import { User, Expense, getPermissions, getExpenses, uploadNewExpense, uploadFile, deleteExpense, updateExpense, generateUrlFromStorage, deleteAttachment, importFromFile } from '@/utils';
+import { User, Expense, getPermissions, getExpenses, uploadNewExpense, uploadFile, deleteExpense, updateExpense, generateUrlFromStorage, deleteAttachment, importFromFile, LogOut } from '@/utils';
 import { getTranslation } from '@/translations';
 import { Timestamp } from "firebase/firestore";
 
@@ -27,11 +27,19 @@ export default function Home({ params: { lang } }: Props) {
   const [user, setUser] = useState<User>();
   const isUserLoggedIn = useCallback(() => {
 		onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                setUser({ email: user.email, uid: user.uid });
-                getPermissions(user.uid, setModifyPermission);
+      if (user) {
+          setUser({ email: user.email, uid: user.uid });
+          getPermissions(user.uid, setModifyPermission);
 			} else {
-				return router.push("/"+lang+"/login");
+          let language;
+          if (typeof window !== 'undefined' && navigator) {
+            // check and set polish or in any other case english
+            language = navigator.language.slice(0, 2)==="pl" ? "pl" : "en";
+          } else {
+            // in server-side case set lang to english
+            language = "en";
+          }
+				return router.push("/"+language+"/login");
 			}
 		});
 	}, [router]);
@@ -227,7 +235,9 @@ return (
           </tbody>
         </table>
       </div>
-      
+      <div>
+        <button className="p-3 bg-red-500 hover:bg-red-600" onClick={() => LogOut(router, lang)}>{t("logOut")}</button>
+      </div>
     </main>
   );
 }

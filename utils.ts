@@ -289,7 +289,6 @@ export const LogOut = (router: any, lang: "en" | "pl") => {
 	signOut(auth)
 		.then(() => {
 			successMessage(t(lang, "logoutSuccess"));
-			router.push("/login");
 		})
 		.catch((error) => {
 			errorMessage(t(lang, "logoutFail"));
