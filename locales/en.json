@@ -2,7 +2,7 @@
     "name": "Name",
     "date": "Date",
     "amount": "Amount",
-    "attachment": "Attachment",
+    "attachment": "File",
     "addExpense": "Submit expense",
     "addSuccess": " added successfully 🎉",
     "addFail": " wasn't added due to error❌",
