@@ -85,8 +85,8 @@ if (!finished) return  <div className="flex justify-center border-b border-neutr
 return (
     <main className="flex flex-col items-center justify-center p-24 border-neutral-800 bg-zinc-800/30 from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:p-4">
       {showImg &&
-      <div>
-        <img className='w-full h-full' src={viewUrl} alt={t("attachment")} onClick={() => setShowImg(false)} />
+      <div id="lightbox">
+        <img src={viewUrl} alt={t("attachment")} onClick={() => setShowImg(false)} />
         </div>
       }
       <div style={{
