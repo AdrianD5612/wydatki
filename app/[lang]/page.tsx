@@ -158,7 +158,7 @@ return (
                 type="text"
                 className="w-16 md:w-32 lg:w-32 text-white bg-zinc-400/30"
                 value={expense.name}
-                disabled={!expense.editMode}
+                readOnly={!expense.editMode}
                 onChange={(e) => {
                   setExpenses((prevExpenses: any) =>
                     prevExpenses.map((prevExpense: Expense) =>
@@ -172,7 +172,7 @@ return (
                 type="date"
                 className="w-28 text-white bg-zinc-400/30"
                 value={expense.date.toDate().toLocaleDateString('en-CA')}
-                disabled={!expense.editMode}
+                readOnly={!expense.editMode}
                 onChange={(e) => {
                   setExpenses((prevExpenses: any) =>
                     prevExpenses.map((prevExpense: Expense) =>
@@ -187,7 +187,7 @@ return (
                 type="number"
                 className={inputClass}
                 value={expense.amount}
-                disabled={!expense.editMode}
+                readOnly={!expense.editMode}
                 onChange={(e) => {
                   setExpenses((prevExpenses: any) =>
                     prevExpenses.map((prevExpense: Expense) =>
