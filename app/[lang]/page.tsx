@@ -153,10 +153,10 @@ return (
           <tbody>
           {expenses?.map((expense: Expense, i) =>(
             <tr key={expense.id}>
-              <td className='md:text-md text-sm'>
+              <td>
                 <input 
                 type="text"
-                className="w-16 md:w-32 lg:w-32 text-white bg-zinc-400/30"
+                className="w-16 md:w-40 lg:w-60 text-xs md:text-sm text-white bg-zinc-400/30"
                 value={expense.name}
                 readOnly={!expense.editMode}
                 onChange={(e) => {
@@ -167,10 +167,10 @@ return (
                   );
                 }}/>
                 </td>
-              <td className='md:text-md text-sm'>
+              <td>
                 <input
                 type="date"
-                className="w-28 text-white bg-zinc-400/30"
+                className="w-24 md:w-28 text-xs md:text-sm text-white bg-zinc-400/30"
                 value={expense.date.toDate().toLocaleDateString('en-CA')}
                 readOnly={!expense.editMode}
                 onChange={(e) => {
@@ -182,10 +182,10 @@ return (
                 }}
                 />
               </td>
-              <td className='md:text-md text-sm'>
+              <td>
                 <input
                 type="number"
-                className={inputClass}
+                className="w-16 text-xs md:text-sm text-white bg-zinc-400/30"
                 value={expense.amount}
                 readOnly={!expense.editMode}
                 onChange={(e) => {
@@ -197,11 +197,11 @@ return (
                 }}
                 />
               </td>
-              <td className='md:text-md text-sm'>{expense.editMode? '' : expense.balance}</td>
-              <td>
+              <td className='text-xs md:text-sm'>{expense.editMode? '' : expense.balance}</td>
+              <td className='text-xs md:text-sm'>
                 {expense.attachment? (
-                  <><button className="p-3 w-full bg-blue-600 hover:bg-blue-800 text-white" hidden={expense.editMode} onClick={() => viewClicked(expense.attachment as string)}>{t("view")}</button>
-                    <button className="p-3 bg-red-600 hover:bg-red-800 text-white" hidden={!expense.editMode} onClick={() => deleteAttachment(expense.id as string, expense.attachment as string, lang)}>{t("deleteAttachment")}</button></>
+                  <><button className="p-3 w-auto bg-blue-600 hover:bg-blue-800 text-white" hidden={expense.editMode} onClick={() => viewClicked(expense.attachment as string)}>{t("view")}</button>
+                    <button className="p-3 w-auto bg-red-600 hover:bg-red-800 text-white" hidden={!expense.editMode} onClick={() => deleteAttachment(expense.id as string, expense.attachment as string, lang)}>{t("deleteAttachment")}</button></>
                   ) : (
                   <input
                   type={expense.editMode? "file": "hidden" }
@@ -213,7 +213,7 @@ return (
                 }
               </td>
               {modifyPermission &&
-              <td className='md:text-md text-sm flex space-x-2'>
+              <td className='text-xs md:text-sm flex space-x-2'>
                 <button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => {
                 setExpenses((prevExpenses: any) =>
                     prevExpenses.map((prevExpense: Expense) =>
