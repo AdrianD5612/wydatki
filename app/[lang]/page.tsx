@@ -151,12 +151,12 @@ return (
             </tr>
           </thead>
           <tbody>
-          {expenses?.map((expense: Expense, i) =>(
-            <tr key={expense.id}>
+          {expenses?.map((expense: Expense) =>(
+            <tr className={expense.amount>0? "bg-green-900" : "bg-red-900"} key={expense.id}>
               <td>
                 <input 
                 type="text"
-                className="w-16 md:w-40 lg:w-60 text-xs md:text-sm text-white bg-zinc-400/30"
+                className="w-16 md:w-40 lg:w-60 text-xs md:text-sm text-white bg-transparent"
                 value={expense.name}
                 readOnly={!expense.editMode}
                 onChange={(e) => {
@@ -170,7 +170,7 @@ return (
               <td>
                 <input
                 type="date"
-                className="w-24 md:w-28 text-xs md:text-sm text-white bg-zinc-400/30"
+                className="w-24 md:w-28 text-xs md:text-sm text-white bg-transparent"
                 value={expense.date.toDate().toLocaleDateString('en-CA')}
                 readOnly={!expense.editMode}
                 onChange={(e) => {
@@ -185,7 +185,7 @@ return (
               <td>
                 <input
                 type="number"
-                className="w-16 text-xs md:text-sm text-white bg-zinc-400/30"
+                className="w-16 text-xs md:text-sm text-white bg-transparent"
                 value={expense.amount}
                 readOnly={!expense.editMode}
                 onChange={(e) => {
@@ -197,7 +197,7 @@ return (
                 }}
                 />
               </td>
-              <td className='text-xs md:text-sm'>{expense.editMode? '' : expense.balance}</td>
+              <td className={'text-xs md:text-sm'+(expense.balance && expense.balance>0? " bg-green-900" : " bg-red-900")}>{expense.editMode? '' : expense.balance}</td>
               <td className='text-xs md:text-sm'>
                 {expense.attachment? (
                   <><button className="p-3 w-auto bg-blue-600 hover:bg-blue-800 text-white" hidden={expense.editMode} onClick={() => viewClicked(expense.attachment as string)}>{t("view")}</button>

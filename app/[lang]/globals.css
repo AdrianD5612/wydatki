@@ -47,6 +47,9 @@ th {
 	border-radius: 2px;
 	padding: 3px;
 	text-align: left;
+}
+
+th {
 	background-color: #1e293b;
 }
 
