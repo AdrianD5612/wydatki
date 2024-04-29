@@ -136,6 +136,9 @@ return (
           onChange={e => importFromFile(e.target.files?.[0], setImportMode, lang)}
           />
       </div>
+      <div>
+        <p className="text-lgs font-bold text-blue-400">{t("balance")}: {expenses[0].balance? expenses[0].balance.toString() : "Error"}</p>
+      </div>
       <div className="mt-2 max-w-5xl w-full from-black via-black items-center justify-center font-mono text-sm flex">
         <table className="text-white">
           <thead>
