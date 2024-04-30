@@ -23,6 +23,10 @@ export default function Home({ params: { lang } }: Props) {
   const [importMode, setImportMode] = useState(false);
   const [viewUrl, setViewUrl] = useState<string>();
   const [showImg, setShowImg] = useState(false);
+  const [searchName, setSearchName] = useState<string>("");
+  const [searchPlus, setSearchPlus] = useState(false);
+  const [searchMinus, setSearchMinus] = useState(false);
+  const [searchFile, setSearchFile] = useState(false);
   const t = (key: string) => getTranslation(lang, key);
   const [user, setUser] = useState<User>();
   const isUserLoggedIn = useCallback(() => {
@@ -139,6 +143,46 @@ return (
       <div>
         <p className="text-lgs font-bold text-blue-400">{t("balance")}: {expenses[0].balance? expenses[0].balance.toString() : "Error"}</p>
       </div>
+      {/* Flex row instead of col for search bar */}
+      <div className="flex flex-row"> 
+        <input
+          type="text"
+          className="w-16 md:w-32 lg:w-32 mr-4 text-white bg-zinc-400/30"
+          placeholder={t("search")}
+          value={searchName}
+          onChange={e => setSearchName(e.target.value)}
+        />
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            className="h-5 w-5 mr-2 text-white bg-zinc-400/30"
+            id='searchPlus'
+            checked={searchPlus}
+            onChange={e => setSearchPlus(e.target.checked)}
+          />
+          <label htmlFor="searchPlus" className='mr-2'>+</label>
+        </div>
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            className="h-5 w-5 mr-2 text-white bg-zinc-400/30"
+            id='searchMinus'
+            checked={searchMinus}
+            onChange={e => setSearchMinus(e.target.checked)}
+          />
+          <label htmlFor="searchMinus" className='mr-2'>-</label>
+        </div>
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            className="h-5 w-5 mr-2 text-white bg-zinc-400/30"
+            id='searchFile'
+            checked={searchFile}
+            onChange={e => setSearchFile(e.target.checked)}
+          />
+          <label htmlFor="searchFile">{t("attachment")}</label>
+        </div>
+      </div>
       <div className="mt-2 max-w-5xl w-full from-black via-black items-center justify-center font-mono text-sm flex">
         <table className="text-white">
           <thead>
@@ -154,7 +198,7 @@ return (
             </tr>
           </thead>
           <tbody>
-          {expenses?.map((expense: Expense) =>(
+          {expenses?.filter((expense: Expense) => expense.name.toLowerCase().includes(searchName.toLowerCase())).filter((expense: Expense) => (!searchMinus && expense.amount>0) || (!searchPlus && expense.amount<0)).filter((expense: Expense) => (!searchFile || expense.attachment)).map((expense: Expense) =>(
             <tr className={expense.amount>0? "bg-green-900" : "bg-red-900"} key={expense.id}>
               <td>
                 <input 
