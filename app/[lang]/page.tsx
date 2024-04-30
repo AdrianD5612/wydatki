@@ -158,7 +158,9 @@ return (
             className="h-5 w-5 mr-2 text-white bg-zinc-400/30"
             id='searchPlus'
             checked={searchPlus}
-            onChange={e => setSearchPlus(e.target.checked)}
+            onChange={e => { setSearchPlus(e.target.checked)
+              if (e.target.checked) setSearchMinus(!e.target.checked)
+            }}
           />
           <label htmlFor="searchPlus" className='mr-2'>+</label>
         </div>
@@ -168,7 +170,9 @@ return (
             className="h-5 w-5 mr-2 text-white bg-zinc-400/30"
             id='searchMinus'
             checked={searchMinus}
-            onChange={e => setSearchMinus(e.target.checked)}
+            onChange={e => { setSearchMinus(e.target.checked)
+              if (e.target.checked) setSearchPlus(!e.target.checked)
+            }}
           />
           <label htmlFor="searchMinus" className='mr-2'>-</label>
         </div>
