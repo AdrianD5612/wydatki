@@ -72,6 +72,26 @@ export default function Home({ params: { lang } }: Props) {
     }
   }
   
+  const exportClicked = () => {
+    const reducedExpenses: Expense[] = [];
+    expenses.forEach((entry: Expense) => {
+      delete entry.balance;
+      delete entry.editMode;
+      reducedExpenses.push(entry);
+      }
+    );
+    const content = JSON.stringify(reducedExpenses);
+    const element = document.createElement("a");
+    element.setAttribute("id", "download-link");
+    const file = new Blob([content], { type: "text/plain" });
+    element.href = URL.createObjectURL(file);
+    element.download = new Date(Date.now()).toISOString() + ".json";
+    // simulate link click
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    setImportMode(false);
+  }
 
   useEffect(() => {
     isUserLoggedIn()
@@ -97,7 +117,7 @@ return (
         display: modifyPermission? (newMode? "none":"block") : "none"
       }}>
         <button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => createNewClicked()}>{t("createExpense")}</button>
-        <button className="p-3 bg-yellow-600 hover:bg-yellow-800 text-white" hidden={importMode} onClick={() => setImportMode(true)}>{t("import")}</button>
+        <button className="p-3 bg-yellow-600 hover:bg-yellow-800 text-white" hidden={importMode} onClick={() => setImportMode(true)}>{t("importExport")}</button>
       </div>
       <div className="mt-2 items-center justify-end" style={{
         display: modifyPermission? (newMode? "block":"none") : "none"
@@ -133,6 +153,7 @@ return (
       <div className="mt-2 items-center justify-end" style={{
         display: importMode? "block" : "none"
       }}>
+        <button className="mt-2 p-3 bg-green-600 hover:bg-green-800 text-white md:w-[200px] w-full rounded" onClick={() => exportClicked()}>{t("export")}</button>
         <input
           type="file"
           name="file"

@@ -26,8 +26,9 @@
     "deleteFileSuccess": "Pomyślnie usunięto załącznik 🎉",
     "deleteFileFail": "Nie udało się usunąć załącznika ❌",
     "balance": "Saldo",
-    "import": "Importuj z pliku",
+    "importExport": "Importuj lub eksportuj plik",
     "importFail": "Nie udało się zaimportować z pliku ❌",
+    "export": "Eksportuj",
     "logOut": "Wyloguj",
     "search": "Szukaj",
 

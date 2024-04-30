@@ -26,8 +26,9 @@
     "deleteFileSuccess": "Successfully deleted attachment 🎉",
     "deleteFileFail": "Failed to delete attachment ❌",
     "balance": "Balance",
-    "import": "Import file",
+    "importExport": "Import or export file",
     "importFail": "Failed to import from file ❌",
+    "export": "Export",
     "logOut": "Log out",
     "search": "Search",
 

@@ -65,6 +65,7 @@ export const getExpenses = (setExpenses: any, setFinished: any) => {
 
 export const uploadNewExpense = async (newExpense: Expense, file: File | undefined, lang: "en" | "pl") => {
 	try {
+		delete newExpense.id; //id should not be in doc data
 		const docRef = await addDoc(collection(db, "Expenses"), newExpense).then((docRef) => {
 			successMessage(newExpense.name+t(lang, "addSuccess"));
 			if (file != undefined) {
@@ -199,7 +200,9 @@ export const importFromFile = (file: File | undefined, setImportMode: any, lang:
         try {
           const parsedObjects = JSON.parse(content) as Expense[];
           for (const obj of parsedObjects) {
-			obj.date = Timestamp.fromDate(new Date(Date.parse(obj.date.toString())));	//converting string date to firebase timestamp
+			if (!(obj.date instanceof Timestamp)) {  //avoid converting already converted date
+				obj.date = Timestamp.fromDate(new Date(Date.parse(obj.date.toString())));	//converting string date to firebase timestamp
+			}
 			if (typeof obj.amount !== 'number' || Number.isNaN(obj.amount)) {
 				try {
 					obj.amount = parseFloat(obj.amount.toString().replace(/,/g, '.'));	//handle comma as decimal separator
