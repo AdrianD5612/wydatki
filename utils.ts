@@ -128,6 +128,7 @@ export const updateExpense = async (newExpense: any, lang: "en" | "pl") => {
 			delete newExpense.editMode;	//client side only property
 			delete newExpense.balance;	//client side only property
 			const docRef = doc(db, "Expenses", newExpense.id);
+			delete newExpense.id; //id should not be in doc data
 			await updateDoc(docRef, newExpense).then(() => {
 				successMessage(t(lang, "updateSuccess"));
 			}).catch((error) => {
@@ -212,8 +213,14 @@ export const importFromFile = (file: File | undefined, setImportMode: any, lang:
 					return;
 				}
 			}
-			console.log(obj);
-            await uploadNewExpense(obj, undefined, lang);
+			//check if doc with that id already exists
+			const docRef = doc(db, "Expenses", obj.id===undefined? "error" : obj.id);
+			const docSnap = await getDoc(docRef);
+			if (docSnap.exists()) {
+				await updateExpense(obj, lang); //exists so update it
+			} else {
+				await uploadNewExpense(obj, undefined, lang); //don't exist so create it
+			}
           }
         } catch (error) {
           console.error(error);
