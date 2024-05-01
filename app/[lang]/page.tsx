@@ -223,7 +223,7 @@ return (
             </tr>
           </thead>
           <tbody>
-          {expenses?.filter((expense: Expense) => expense.name.toLowerCase().includes(searchName.toLowerCase())).filter((expense: Expense) => (!searchMinus && expense.amount>0) || (!searchPlus && expense.amount<0)).filter((expense: Expense) => (!searchFile || expense.attachment)).map((expense: Expense) =>(
+          {expenses?.filter((expense: Expense) => expense.name.toLowerCase().includes(searchName.toLowerCase())).filter((expense: Expense) => (!searchMinus && expense.amount>=0) || (!searchPlus && expense.amount<0)).filter((expense: Expense) => (!searchFile || expense.attachment)).map((expense: Expense) =>(
             <tr className={expense.amount>0? "bg-green-900" : "bg-red-900"} key={expense.id}>
               <td>
                 <input 
