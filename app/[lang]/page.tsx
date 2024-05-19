@@ -17,6 +17,7 @@ export default function Home({ params: { lang } }: Props) {
   const [expenses, setExpenses] = useState<Expense[] | []>([]);
   const [finished, setFinished] = useState(false);
   const [modifyPermission, setModifyPermission] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const [newMode, setNewMode] = useState(false);
   const [newExpense, setNewExpense] = useState<Expense>({name: "", date: Timestamp.fromDate(new Date()), amount: 0, attachment: ""});
   const [newFile, setNewFile] = useState<File>();
@@ -116,11 +117,20 @@ return (
       <div style={{
         display: modifyPermission? (newMode? "none":"block") : "none"
       }}>
+        <label className="inline-flex items-center cursor-pointer">
+          <input type="checkbox" value="" className="sr-only peer" onChange={() => setEditMode(!editMode)}/>
+          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all border-gray-600 peer-checked:bg-blue-600"></div>
+          <span className="ms-3 text-sm font-medium text-gray-300">{t("editMode")}</span>
+        </label>
+      </div>
+      <div style={{
+        display: editMode? (newMode? "none":"block") : "none"
+      }}>
         <button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => createNewClicked()}>{t("createExpense")}</button>
         <button className="p-3 bg-yellow-600 hover:bg-yellow-800 text-white" hidden={importMode} onClick={() => setImportMode(true)}>{t("importExport")}</button>
       </div>
       <div className="mt-2 items-center justify-end" style={{
-        display: modifyPermission? (newMode? "block":"none") : "none"
+        display: editMode? (newMode? "block":"none") : "none"
       }}>
         <div><input 
           type="text"
@@ -217,7 +227,7 @@ return (
               <th>{t("amount")}</th>
               <th>{t("balance")}</th>
               <th>{t("attachment")}</th>
-              {modifyPermission &&
+              {editMode &&
               <th>{t("edit")}</th>
               }
             </tr>
@@ -284,7 +294,7 @@ return (
                   )
                 }
               </td>
-              {modifyPermission &&
+              {editMode &&
               <td className='text-xs md:text-sm flex space-x-2'>
                 <button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => {
                 setExpenses((prevExpenses: any) =>
