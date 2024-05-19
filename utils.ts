@@ -249,7 +249,7 @@ export const successMessage = (message:string) => {
 		pauseOnHover: true,
 		draggable: true,
 		progress: undefined,
-		theme: "light",
+		theme: "dark",
 	});
 };
 /**
@@ -266,7 +266,7 @@ export const errorMessage = (message:string) => {
 		pauseOnHover: true,
 		draggable: true,
 		progress: undefined,
-		theme: "light",
+		theme: "dark",
 	});
 };
 
