@@ -124,24 +124,24 @@ return (
         </label>
       </div>
       <div style={{
-        display: editMode? (newMode? "none":"block") : "none"
+        display: modifyPermission? (newMode? "none":"block") : "none"
       }}>
         <button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => createNewClicked()}>{t("createExpense")}</button>
         <button className="p-3 bg-yellow-600 hover:bg-yellow-800 text-white" hidden={importMode} onClick={() => setImportMode(true)}>{t("importExport")}</button>
       </div>
       <div className="mt-2 items-center justify-end" style={{
-        display: editMode? (newMode? "block":"none") : "none"
+        display: newMode? "block":"none"
       }}>
         <div><input 
           type="text"
-          className="w-16 md:w-32 lg:w-32 text-white bg-zinc-400/30"
+          className="w-32 md:w-64 lg:w-64 text-white bg-zinc-400/30"
           placeholder={t("name")}
           value={newExpense?.name}
           onChange={e => setNewExpense({...newExpense, name: e.target.value})}
         /></div>
         <div><input
           type="date"
-          className="w-16 md:w-32 lg:w-32 text-white bg-zinc-400/30"
+          className="w-32 text-white bg-zinc-400/30"
           value={newExpense?.date?.toDate().toLocaleDateString('en-CA')}
           onChange={e => setNewExpense({...newExpense, date: Timestamp.fromDate(new Date(e.target.value))})}
         /></div>
