@@ -113,9 +113,16 @@ export const uploadNewExpense = async (newExpense: Expense, file: File | undefin
 export const uploadFile = (file: File, id: string, lang: "en" | "pl") => {
 	const storage = getStorage();
 	const storageRef = ref(storage, 'Attachments/'+id+'.'+file.name.split('.').pop());
+	let toastId : any = null;
 	const uploadTask = uploadBytesResumable(storageRef, file);
 	uploadTask.on('state_changed',
 		(snapshot) => {
+			const progress = Math.round( (snapshot.bytesTransferred / snapshot.totalBytes) * 100 ) / 100;
+			if (toastId === null) {
+				toastId = toast(t(lang, "uploading"), { progress, theme: "dark" });
+			  } else {
+				toast.update(toastId, { progress });
+			  } 
 		}, 
 		(error) => {
 			// A full list of error codes is available at
@@ -134,6 +141,7 @@ export const uploadFile = (file: File, id: string, lang: "en" | "pl") => {
 		}, 
 		async () => {
 			// success
+			toast.done(toastId);
 			const billRef = doc(db, "Expenses", id);
 			const docSnap = await getDoc(billRef);
 			if (docSnap.exists()) {

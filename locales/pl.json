@@ -9,6 +9,7 @@
     "createExpense": "Nowy wydatek",
     "cancel": "Anuluj",
     "edit": "Edytuj",
+    "uploading": "Wysyłanie...",
     "uploadFailSize": "Nieudane przesłanie załącznika ❌ Rozmiar pliku powinien być mniejszy niż 10 MB",
     "uploadFailCancel": "Przesyłanie zostało anulowane ❌",
     "uploadFail": "Nieudane przesłanie załącznika z powodu nieznanego błędu ❌",
