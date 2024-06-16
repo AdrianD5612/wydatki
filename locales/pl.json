@@ -10,6 +10,7 @@
     "cancel": "Anuluj",
     "edit": "Edytuj",
     "uploading": "Wysyłanie...",
+    "loading": "Ładowanie...",
     "uploadFailSize": "Nieudane przesłanie załącznika ❌ Rozmiar pliku powinien być mniejszy niż 10 MB",
     "uploadFailCancel": "Przesyłanie zostało anulowane ❌",
     "uploadFail": "Nieudane przesłanie załącznika z powodu nieznanego błędu ❌",

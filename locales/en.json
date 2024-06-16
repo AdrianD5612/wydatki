@@ -10,6 +10,7 @@
     "cancel": "Cancel",
     "edit": "Edit",
     "uploading": "Uploading...",
+    "loading": "Loading...",
     "uploadFailSize": "Failed to upload attachment ❌ File size should be smaller than 10 MB",
     "uploadFailCancel": "Upload canceled ❌",
     "uploadFail": "Failed to upload attachment due to unknown error ❌",

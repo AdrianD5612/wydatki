@@ -23,6 +23,7 @@ export default function Home({ params: { lang } }: Props) {
   const [newFile, setNewFile] = useState<File>();
   const [importMode, setImportMode] = useState(false);
   const [viewUrl, setViewUrl] = useState<string>();
+  const [loadingImg, setLoadingImg] = useState(true);
   const [showImg, setShowImg] = useState(false);
   const [searchName, setSearchName] = useState<string>("");
   const [searchPlus, setSearchPlus] = useState(false);
@@ -72,6 +73,10 @@ export default function Home({ params: { lang } }: Props) {
       setShowImg(true);
     }
   }
+
+  const onImageLoad = useCallback(() => {
+    setLoadingImg(false);
+  }, []);
   
   const exportClicked = () => {
     const reducedExpenses: Expense[] = [];
@@ -106,13 +111,22 @@ export default function Home({ params: { lang } }: Props) {
     return () => { ignore = true; }
   },[]);
 
+  useEffect(() => {
+    setLoadingImg(true);
+  }, [viewUrl]);
+
 if (!finished) return  <div className="flex justify-center border-b border-neutral-800 bg-gradient-to-b from-zinc-600/30 pb-6 pt-8 backdrop-blur-2xl lg:static lg:w-auto lg:rounded-xl lg:p-4">...</div>
 return (
     <main className="flex flex-col items-center justify-center p-24 border-neutral-800 bg-zinc-800/30 from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:p-4">
       {showImg &&
-      <div id="lightbox">
-        <img src={viewUrl} alt={t("attachment")} onClick={() => setShowImg(false)} />
+      <div>
+        <div id="lightbox" style={{display: loadingImg ? "flex" : "none"}}>
+          <img src='spinner.gif' alt={t("loading")} />
         </div>
+        <div id="lightbox" style={{display: loadingImg ? "none" : "flex"}}>
+          <img src={viewUrl} alt={t("attachment")}  onLoad={onImageLoad} onClick={() => setShowImg(false)} />
+        </div>
+      </div>
       }
       <div style={{
         display: modifyPermission? (newMode? "none":"block") : "none"
