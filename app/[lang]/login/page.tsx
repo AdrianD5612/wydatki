@@ -1,11 +1,13 @@
 "use client"
 import { LoginUser } from "@/utils"
-import React, { FormEventHandler, useState } from "react"
+import React, { FormEventHandler, useState, use } from "react";
 import { useRouter } from 'next/navigation'
 import { getTranslation } from '@/translations';
 import { Props } from "@/app/[lang]/page"
 
-export default function Home({ params: { lang } }: Props) {
+export default function Home(props: Props) {
+  const params = use(props.params);
+  const {lang} = params;
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
   const router = useRouter()
@@ -15,7 +17,7 @@ export default function Home({ params: { lang } }: Props) {
     e.preventDefault()
     LoginUser(email, password, router, lang)
   }
-  
+
   return (
     <main className="w-full bg-slate-800 h-[90vh] flex items-center justify-center flex-col px-4"> 
       <h2 className="text-3xl text-white font-bold mb-6">{t("login")}:</h2>
