@@ -76,6 +76,12 @@ export default function Home(props: Props) {
     }
   }
 
+  const closeClicked = () => {
+    setShowImg(false);
+    setViewUrl(undefined);
+    setLoadingImg(true);
+  }
+
   const onImageLoad = useCallback(() => {
     setLoadingImg(false);
   }, []);
@@ -126,7 +132,7 @@ export default function Home(props: Props) {
             <img src='spinner.gif' alt={t("loading")} />
           </div>
           <div id="lightbox" style={{display: loadingImg ? "none" : "flex"}}>
-            <img src={viewUrl} alt={t("attachment")}  onLoad={onImageLoad} onClick={() => setShowImg(false)} />
+            <img src={viewUrl} alt={t("attachment")}  onLoad={onImageLoad} onClick={() => closeClicked()} />
           </div>
         </div>
         }
