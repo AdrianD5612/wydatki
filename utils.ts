@@ -1,13 +1,27 @@
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "./firebase";
-import { toast } from "react-toastify";
-import { doc, deleteDoc, onSnapshot, collection, addDoc, query, where, serverTimestamp, orderBy, Timestamp, setDoc, getDocs, getDoc, updateDoc  } from "firebase/firestore";
+import { toast, type Id } from "react-toastify";
+import { doc, deleteDoc, onSnapshot, collection, addDoc, query, where, serverTimestamp, orderBy, Timestamp, setDoc, getDocs, getDoc, updateDoc, type QuerySnapshot, type QueryDocumentSnapshot, type DocumentData  } from "firebase/firestore";
 import { getStorage, ref, uploadBytesResumable, deleteObject, getDownloadURL } from "firebase/storage";
 import db from "./firebase";
 import { getTranslation } from "./translations";
-import firebase from "firebase/compat/app";
 
 const t = (lang: "en" | "pl", key: string) => getTranslation(lang, key);
+
+type RouterLike = {
+	push: (href: string) => void;
+};
+
+type PermissionDoc = {
+	id: string;
+};
+
+type ExpenseDoc = Omit<Expense, "id" | "editMode" | "balance">;
+
+type ImportedExpense = Omit<Expense, "date" | "amount"> & {
+	date: string | Timestamp;
+	amount: number | string;
+};
 
 export interface User {
     email: string | null,
@@ -17,7 +31,7 @@ export interface User {
 export interface Expense {
 	id?: string;
 	name: string;
-	date: firebase.firestore.Timestamp;
+	date: Timestamp;
 	amount: number;
 	attachment?: string;
 	editMode?: boolean; // used only on client side to handle editing
@@ -28,14 +42,15 @@ export interface Expense {
  * Function to retrieve permissions based on ID and set modify permission.
  *
  * @param {string} id - The ID for which permissions are being retrieved.
- * @param {any} setModifyPermission - The function to set modify permission.
+ * @param {(modifyPermission: boolean) => void} setModifyPermission - The function to set modify permission.
  * @return {void} No return value.
  */
-export const getPermissions = (id: string, setModifyPermission: any) => {
+export const getPermissions = (id: string, setModifyPermission: (modifyPermission: boolean) => void) => {
 	try {
-		const unsub = onSnapshot(collection(db, "Permissions"), doc => {
-            doc.forEach((d: any) => {
-				if (d.data().id === id) {
+		const unsub = onSnapshot(collection(db, "Permissions"), (snapshot: QuerySnapshot<DocumentData>) => {
+			snapshot.forEach((d: QueryDocumentSnapshot<DocumentData>) => {
+				const data = d.data() as PermissionDoc;
+				if (data.id === id) {
 					setModifyPermission(true);
 				}
 			});
@@ -49,16 +64,17 @@ export const getPermissions = (id: string, setModifyPermission: any) => {
 /**
  * Retrieves expenses from the Firestore collection "Expenses" and updates the state with the retrieved data.
  *
- * @param {Function} setExpenses - The state setter function for the expenses.
- * @param {Function} setFinished - The state setter function for indicating if the expenses have been fully loaded.
+ * @param {(expenses: Expense[]) => void} setExpenses - The state setter function for the expenses.
+ * @param {(finished: boolean) => void} setFinished - The state setter function for indicating if the expenses have been fully loaded.
  * @return {void}
  */
-export const getExpenses = (setExpenses: any, setFinished: any) => {
+export const getExpenses = (setExpenses: (expenses: Expense[]) => void, setFinished: (finished: boolean) => void) => {
 	try {
-		const unsub = onSnapshot(collection(db, "Expenses"), doc => {
+		const unsub = onSnapshot(collection(db, "Expenses"), (snapshot: QuerySnapshot<DocumentData>) => {
 			const docs: Expense[] = []
-            doc.forEach((d: any) => {
-				docs.push( { ...d.data(), id: d.id });	
+			snapshot.forEach((d: QueryDocumentSnapshot<DocumentData>) => {
+				const data = d.data() as ExpenseDoc;
+				docs.push( { ...data, id: d.id });	
 			});
 			docs.sort((a:Expense, b:Expense) => a.date.toMillis() - b.date.toMillis());
 			//calculating client side property: balance
@@ -87,8 +103,8 @@ export const getExpenses = (setExpenses: any, setFinished: any) => {
  */
 export const uploadNewExpense = async (newExpense: Expense, file: File | undefined, lang: "en" | "pl") => {
 	try {
-		delete newExpense.id; //id should not be in doc data
-		const docRef = await addDoc(collection(db, "Expenses"), newExpense).then((docRef) => {
+		const { id: _id, editMode: _editMode, balance: _balance, ...docData } = newExpense;
+		const docRef = await addDoc(collection(db, "Expenses"), docData).then((docRef) => {
 			successMessage(newExpense.name+t(lang, "addSuccess"));
 			if (file != undefined) {
 				uploadFile(file, docRef.id, lang);
@@ -113,7 +129,7 @@ export const uploadNewExpense = async (newExpense: Expense, file: File | undefin
 export const uploadFile = (file: File, id: string, lang: "en" | "pl") => {
 	const storage = getStorage();
 	const storageRef = ref(storage, 'Attachments/'+id+'.'+file.name.split('.').pop());
-	let toastId : any = null;
+	let toastId : Id | null = null;
 	const uploadTask = uploadBytesResumable(storageRef, file);
 	uploadTask.on('state_changed',
 		(snapshot) => {
@@ -141,7 +157,9 @@ export const uploadFile = (file: File, id: string, lang: "en" | "pl") => {
 		}, 
 		async () => {
 			// success
-			toast.done(toastId);
+			if (toastId !== null) {
+				toast.done(toastId);
+			}
 			const billRef = doc(db, "Expenses", id);
 			const docSnap = await getDoc(billRef);
 			if (docSnap.exists()) {
@@ -162,18 +180,16 @@ export const uploadFile = (file: File, id: string, lang: "en" | "pl") => {
 /**
  * Updates an expense in the Firestore database based on the provided newExpense object.
  *
- * @param {any} newExpense - The new expense object to be updated.
+ * @param {Expense} newExpense - The new expense object to be updated.
  * @param {"en" | "pl"} lang - The language for messages.
  * @return {Promise<void>} A Promise that resolves when the expense is successfully updated, or rejects with an error.
  */
-export const updateExpense = async (newExpense: any, lang: "en" | "pl") => {
+export const updateExpense = async (newExpense: Expense, lang: "en" | "pl") => {
 	try {
 		if (newExpense.id) {
-			delete newExpense.editMode;	//client side only property
-			delete newExpense.balance;	//client side only property
-			const docRef = doc(db, "Expenses", newExpense.id);
-			delete newExpense.id; //id should not be in doc data
-			await updateDoc(docRef, newExpense).then(() => {
+			const { id, editMode: _editMode, balance: _balance, ...docData } = newExpense;
+			const docRef = doc(db, "Expenses", id);
+			await updateDoc(docRef, docData).then(() => {
 				successMessage(t(lang, "updateSuccess"));
 			}).catch((error) => {
 				console.error(error);
@@ -212,11 +228,11 @@ export const deleteExpense = async (id: string, lang: "en" | "pl") => {
  * Retrieves the URL of an attachment from Firebase Storage and sets it in the view URL state.
  *
  * @param {string} id - The ID of the attachment.
- * @param {React.Dispatch<React.SetStateAction<string>>} setViewUrl - The state setter for the view URL.
+ * @param {(viewUrl: string) => void} setViewUrl - The state setter for the view URL.
  * @param {"en" | "pl"} lang - The language for error messages.
  * @return {Promise<void>} A Promise that resolves when the URL is successfully set, or rejects with an error.
  */
-export const generateUrlFromStorage = async (id: string, setViewUrl: any, lang: "en" | "pl") => {
+export const generateUrlFromStorage = async (id: string, setViewUrl: (viewUrl: string) => void, lang: "en" | "pl") => {
 	try {
 		const storage = getStorage();
 		const storageRef = ref(storage, 'Attachments/'+id);
@@ -263,37 +279,47 @@ export const deleteAttachment = async (id: string, attachmentFileName: string, l
  * Handles importing data from a file, parsing it, and updating Firestore documents based on the imported data.
  *
  * @param {File | undefined} file - The file to import.
- * @param {any} setImportMode - The function to set the import mode.
+ * @param {(importMode: boolean) => void} setImportMode - The function to set the import mode.
  * @param {"en" | "pl"} lang - The language setting for the import.
  */
-export const importFromFile = (file: File | undefined, setImportMode: any, lang: "en" | "pl") => {
+export const importFromFile = (file: File | undefined, setImportMode: (importMode: boolean) => void, lang: "en" | "pl") => {
     if (file) {
       const reader = new FileReader();
 
       reader.onload = async (event) => {
         const content = event.target?.result as string;
         try {
-          const parsedObjects = JSON.parse(content) as Expense[];
-          for (const obj of parsedObjects) {
-			if (!(obj.date instanceof Timestamp)) {  //avoid converting already converted date
-				obj.date = Timestamp.fromDate(new Date(Date.parse(obj.date.toString())));	//converting string date to firebase timestamp
-			}
-			if (typeof obj.amount !== 'number' || Number.isNaN(obj.amount)) {
-				try {
-					obj.amount = parseFloat(obj.amount.toString().replace(/,/g, '.'));	//handle comma as decimal separator
-				} catch (error) {
-					console.error(error);
-					errorMessage(t(lang, "importFail"));
-					return;
+			const parsedObjects = JSON.parse(content) as ImportedExpense[];
+			for (const obj of parsedObjects) {
+				const date = obj.date instanceof Timestamp
+					? obj.date
+					: Timestamp.fromDate(new Date(Date.parse(String(obj.date))));
+
+				let amount: number;
+				if (typeof obj.amount === "number" && !Number.isNaN(obj.amount)) {
+					amount = obj.amount;
+				} else {
+					try {
+						amount = parseFloat(String(obj.amount).replace(/,/g, ".")); //handle comma as decimal separator
+					} catch (error) {
+						console.error(error);
+						errorMessage(t(lang, "importFail"));
+						return;
+					}
 				}
-			}
+
+				const expense: Expense = {
+					...obj,
+					date,
+					amount,
+				};
 			//check if doc with that id already exists
-			const docRef = doc(db, "Expenses", obj.id===undefined? "error" : obj.id);
+			const docRef = doc(db, "Expenses", expense.id===undefined? "error" : expense.id);
 			const docSnap = await getDoc(docRef);
 			if (docSnap.exists()) {
-				await updateExpense(obj, lang); //exists so update it
+				await updateExpense(expense, lang); //exists so update it
 			} else {
-				await uploadNewExpense(obj, undefined, lang); //don't exist so create it
+				await uploadNewExpense(expense, undefined, lang); //don't exist so create it
 			}
           }
         } catch (error) {
@@ -349,9 +375,10 @@ export const errorMessage = (message:string) => {
  *
  * @param {string} email - the user's email
  * @param {string} password - the user's password
- * @param {any} router - the router object for navigation
+ * @param {RouterLike} router - the router object for navigation
+ * @param {"en" | "pl"} lang - The language setting for the login.
  */
-export const LoginUser = (email: string, password: string, router: any, lang: "en" | "pl") => {
+export const LoginUser = (email: string, password: string, router: RouterLike, lang: "en" | "pl") => {
     signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             const user = userCredential.user;
@@ -367,9 +394,10 @@ export const LoginUser = (email: string, password: string, router: any, lang: "e
 /**
  * Logs the user out and navigates to the login page.
  *
- * @param {any} router - the router object for navigation
+ * @param {RouterLike} router - the router object for navigation
+ * @param {"en" | "pl"} lang - The language setting for the logout.
  */
-export const LogOut = (router: any, lang: "en" | "pl") => {
+export const LogOut = (router: RouterLike, lang: "en" | "pl") => {
 	signOut(auth)
 		.then(() => {
 			successMessage(t(lang, "logoutSuccess"));

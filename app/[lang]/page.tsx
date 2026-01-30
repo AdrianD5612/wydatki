@@ -16,7 +16,7 @@ export default function Home(props: Props) {
   const {lang} = params;
   const inputClass = "w-16 text-white bg-zinc-400/30";
   const router = useRouter();
-  const [expenses, setExpenses] = useState<Expense[] | []>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [finished, setFinished] = useState(false);
   const [modifyPermission, setModifyPermission] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -264,7 +264,7 @@ export default function Home(props: Props) {
                   value={expense.name}
                   readOnly={!expense.editMode}
                   onChange={(e) => {
-                    setExpenses((prevExpenses: any) =>
+                    setExpenses((prevExpenses) =>
                       prevExpenses.map((prevExpense: Expense) =>
                         prevExpense.id === expense.id ? { ...prevExpense, name: e.target.value } : prevExpense
                       )
@@ -278,7 +278,7 @@ export default function Home(props: Props) {
                   value={expense.date.toDate().toLocaleDateString('en-CA')}
                   readOnly={!expense.editMode}
                   onChange={(e) => {
-                    setExpenses((prevExpenses: any) =>
+                    setExpenses((prevExpenses) =>
                       prevExpenses.map((prevExpense: Expense) =>
                         prevExpense.id === expense.id ? { ...prevExpense, date: Timestamp.fromDate(new Date(e.target.value)) } : prevExpense
                       )
@@ -293,7 +293,7 @@ export default function Home(props: Props) {
                   value={expense.amount}
                   readOnly={!expense.editMode}
                   onChange={(e) => {
-                    setExpenses((prevExpenses: any) =>
+                    setExpenses((prevExpenses) =>
                       prevExpenses.map((prevExpense: Expense) =>
                         prevExpense.id === expense.id ? { ...prevExpense, amount: Number(e.target.value) } : prevExpense
                       )
@@ -319,7 +319,7 @@ export default function Home(props: Props) {
                 {editMode &&
                 <td className='text-xs md:text-sm flex space-x-2'>
                   <button className="p-3 bg-blue-600 hover:bg-blue-800 text-white" onClick={() => {
-                  setExpenses((prevExpenses: any) =>
+                  setExpenses((prevExpenses) =>
                       prevExpenses.map((prevExpense: Expense) =>
                         prevExpense.id === expense.id ? { ...prevExpense, editMode: !prevExpense.editMode } : prevExpense
                       )
